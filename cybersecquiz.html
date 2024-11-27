@@ -21,17 +21,16 @@
             font-size: 12px;
             color: #555;
         }
+        /* Невидима кнопка */
         .hidden-button {
             position: absolute;
-            top: 200px;
-            right: 150px;
-            transform: translateY(50px);
-            width: 22px;
-            height: 22px;
-            background: transparent;
+            width: 30px;
+            height: 30px;
             border: none;
             cursor: pointer;
+            /*background: transparent;*/
         }
+        /* Спливаюче повідомлення по центру */
         .hidden-message {
             display: none;
             font-size: 18px;
@@ -42,15 +41,69 @@
 </head>
 <body>
 
+    <!-- Невидима кнопка -->
     <button class="hidden-button" onclick="showMessage()"></button>
 
+    <!-- Спливаюче повідомлення по центру -->
     <div class="hidden-message" id="message">
         Уі иобкщпг нєоє !  Уєрєс туфрбк еп есфдодо рпгєсцф 19 лпсрфтф ф мїгік лпсіепс уб щфлбк рсбгімюоік QR-лпе и дфдм хпснпя !
     </div>
 
     <script>
+        const button = document.querySelector('.hidden-button');
+        const message = document.getElementById("message");
+
+        // Функція для генерації випадкових координат з урахуванням меж екрану
+        function getRandomPosition() {
+            const buttonWidth = 30; // ширина кнопки
+            const buttonHeight = 30; // висота кнопки
+            const maxX = 425 - buttonWidth;
+            const maxY = 900 - buttonHeight;
+            const x = Math.random() * maxX;
+            const y = Math.random() * maxY;
+            return { x, y };
+        }
+
+        // Генерація унікального ідентифікатора для користувача
+        function generateUserId() {
+            return 'user-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Отримання або створення унікального ідентифікатора користувача
+        function getUserId() {
+            let userId = localStorage.getItem('userId');
+            if (!userId) {
+                userId = generateUserId();
+                localStorage.setItem('userId', userId);
+            }
+            return userId;
+        }
+
         function showMessage() {
-            document.getElementById("message").style.display = "block";
+            message.style.display = "block";
+            const newPos = getRandomPosition();
+            button.style.left = newPos.x + 'px';
+            button.style.top = newPos.y + 'px';
+            // Зберігаємо нові координати для конкретного користувача
+            const userId = getUserId();
+            localStorage.setItem(`buttonPosition-${userId}`, JSON.stringify(newPos));
+        }
+
+        // Встановлення позиції кнопки при завантаженні сторінки
+        window.onload = function() {
+            const userId = getUserId();
+            const savedPosition = localStorage.getItem(`buttonPosition-${userId}`);
+            if (savedPosition) {
+                const position = JSON.parse(savedPosition);
+                button.style.left = position.x + 'px';
+                button.style.top = position.y + 'px';
+            } else {
+                // Якщо немає збереженої позиції, генеруємо нову
+                const initialPos = getRandomPosition();
+                button.style.left = initialPos.x + 'px';
+                button.style.top = initialPos.y + 'px';
+                localStorage.setItem(`buttonPosition-${userId}`, JSON.stringify(initialPos));
+            }
         }
     </script>
 </body>
